@@ -42,6 +42,7 @@ log = logging.getLogger("consumer")
 
 RABBITMQ_URL        = os.environ["RABBITMQ_URL"]
 REDIS_URL           = os.environ.get("REDIS_URL", "redis://localhost:6379")
+REDIS_PASSWORD      = os.environ.get("REDIS_PASSWORD", "")
 MINIO_ENDPOINT      = os.environ.get("MINIO_ENDPOINT", "localhost:9000")
 MINIO_ACCESS_KEY    = os.environ.get("MINIO_ACCESS_KEY", "minioadmin")
 MINIO_SECRET_KEY    = os.environ.get("MINIO_SECRET_KEY", "minioadmin")
@@ -73,7 +74,20 @@ TTL_DAILY      = 25 * 60 * 60  # 25 hours (covers the full day + buffer)
 # ── Clients ────────────────────────────────────────────────────────────────────
 
 def make_redis() -> redis.Redis:
-    return redis.Redis.from_url(REDIS_URL, decode_responses=True)
+    # Match the Go services' contract: REDIS_URL has no embedded password,
+    # REDIS_PASSWORD is supplied separately and injected here. Empty password
+    # is allowed (used in dev when the local Redis has no auth).
+    url = REDIS_URL
+    if REDIS_PASSWORD:
+        from urllib.parse import quote, urlsplit, urlunsplit
+        parts = urlsplit(url)
+        if parts.hostname is None:
+            raise RuntimeError("REDIS_URL is missing a host")
+        netloc = f":{quote(REDIS_PASSWORD, safe='')}@{parts.hostname}"
+        if parts.port:
+            netloc += f":{parts.port}"
+        url = urlunsplit((parts.scheme, netloc, parts.path, parts.query, parts.fragment))
+    return redis.Redis.from_url(url, decode_responses=True)
 
 
 def make_minio() -> Minio:

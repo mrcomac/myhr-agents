@@ -1,0 +1,38 @@
+name: Build and Push Agent Images
+
+on:
+  push:
+    branches: [alpha]
+
+env:
+  REGISTRY: ghcr.io
+  OWNER: mrcomac
+
+jobs:
+  build-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      matrix:
+        include:
+          - image: myhr-agents-consumer
+            dockerfile: Dockerfile.consumer
+          - image: myhr-agents-job-enhancement
+            dockerfile: Dockerfile
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./${{ matrix.dockerfile }}
+          push: true
+          tags: |
+            ghcr.io/${{ env.OWNER }}/${{ matrix.image }}:latest
+            ghcr.io/${{ env.OWNER }}/${{ matrix.image }}:${{ github.sha }}
