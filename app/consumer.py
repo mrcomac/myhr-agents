@@ -110,7 +110,7 @@ def fetch_job(job_id: str) -> dict:
 
 # ── Loop service helpers ───────────────────────────────────────────────────────
 
-def store_cv_evaluation(loop_id: str, result: CVEvaluationOutput, cost: str = "") -> None:
+def store_cv_evaluation(loop_id: str, result: CVEvaluationOutput, cost: float | str = "") -> None:
     """POST evaluation result to loop-service internal endpoint."""
     payload = {
         "classification": result.classification,
@@ -121,7 +121,7 @@ def store_cv_evaluation(loop_id: str, result: CVEvaluationOutput, cost: str = ""
         "reasoning": result.reasoning,
     }
     if cost:
-        payload["cost"] = cost
+        payload["cost"] = f"{cost:.6f}" if isinstance(cost, (int, float)) else cost
     resp = requests.post(
         f"{LOOP_SERVICE_URL}/internal/loops/{loop_id}/cv-evaluation",
         json=payload,
