@@ -8,6 +8,7 @@ RUN apt-get update && apt-get install -y \
 
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
+RUN opentelemetry-bootstrap --action=install
 
 COPY app/ .
 
@@ -17,4 +18,4 @@ RUN useradd -m appuser \
 
 USER appuser
 
-CMD ["python", "-m", "consumer"]
+CMD ["opentelemetry-instrument", "python", "-m", "consumer"]

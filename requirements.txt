@@ -10,20 +10,18 @@ minio==7.2.9
 redis==5.0.8
 requests==2.32.3
 
-# OpenTelemetry — traces + metrics over OTLP/gRPC to the SigNoz collector.
-# Bedrock instrumentation follows SigNoz's Amazon Bedrock guide:
-# https://signoz.io/docs/amazon-bedrock-monitoring/  → openinference-instrumentation-bedrock
-# emits gen_ai.* semantic attributes (model id, prompts, completions, token usage)
-# that the generic botocore instrumentor doesn't produce.
-opentelemetry-api==1.27.0
-opentelemetry-sdk==1.27.0
-opentelemetry-exporter-otlp-proto-grpc==1.27.0
-opentelemetry-instrumentation-fastapi==0.48b0
-opentelemetry-instrumentation-requests==0.48b0
-opentelemetry-instrumentation-urllib3==0.48b0
-opentelemetry-instrumentation-httpx==0.48b0
-opentelemetry-instrumentation-pika==0.48b0
-opentelemetry-instrumentation-redis==0.48b0
-opentelemetry-instrumentation-system-metrics==0.48b0
-opentelemetry-instrumentation-logging==0.48b0
+# OpenTelemetry — follows SigNoz's Amazon Bedrock guide verbatim:
+# https://signoz.io/docs/amazon-bedrock-monitoring/
+#
+# `opentelemetry-distro` + `opentelemetry-bootstrap -a install` (run in the
+# Dockerfile) discover every installed library (fastapi, requests, pika,
+# redis, urllib3, logging…) and pip-install the matching instrumentation
+# packages automatically — no need to list them here. The four packages
+# below are the ones the tutorial calls out explicitly because bootstrap
+# doesn't auto-pick them up: httpx, system-metrics, the OTLP exporter, and
+# the Bedrock-specific OpenInference instrumentor.
+opentelemetry-distro
+opentelemetry-exporter-otlp
+opentelemetry-instrumentation-httpx
+opentelemetry-instrumentation-system-metrics
 openinference-instrumentation-bedrock

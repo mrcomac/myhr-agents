@@ -5,13 +5,13 @@ from pathlib import Path
 
 import boto3
 import uvicorn
+import logging
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from strands import Agent
 from strands.models import BedrockModel
 from strands_tools import file_read
 
 from helpers.aws_credentials import AWS_ACCESS_KEY, AWS_REGION, AWS_SECRET_KEY
-from helpers.observability import init_otel, instrument_fastapi
 from helpers.outputs import CVEvaluationOutput, JobDescriptionOutput
 from prompts.CVEvaluationPrompt import CVEvaluationPrompt
 from prompts.JobDescriptionPrompt import JOBDescriptionPrompt
@@ -19,12 +19,9 @@ from prompts.BasePromptModel import BasePromptModel
 from strands import Agent, ModelRetryStrategy
 from helpers.model_definitions import MODEL_ID, calculate_cost_for_model
 
-# Initialise OTel before FastAPI so the instrumentor sees a configured SDK.
-# Runs per uvicorn worker (post-fork) since this module is imported in each.
-init_otel("job-enhancement")
-
 app = FastAPI(title="CV Evaluation Agent")
-instrument_fastapi(app)
+
+logging.getLogger().setLevel(logging.INFO)
 
 UPLOADS_DIR = Path("/app/uploads")
 

@@ -27,12 +27,6 @@ import requests
 from minio import Minio
 from minio.error import S3Error
 
-from helpers.observability import init_otel
-
-# OTel must be initialised BEFORE importing app/pika/redis so instrumentors
-# patch the libraries on first import.
-init_otel("agents-consumer")
-
 from app import build_agent, CVEvaluationOutput
 from helpers.aws_credentials import AWS_ACCESS_KEY, AWS_REGION, AWS_SECRET_KEY
 from helpers.model_definitions import MODEL_ID, calculate_cost_for_model
