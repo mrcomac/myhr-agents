@@ -28,3 +28,4 @@ opentelemetry-instrumentation-httpx
 opentelemetry-instrumentation-system-metrics
 openinference-instrumentation-bedrock
 opentelemetry-instrumentation-pika
+opentelemetry-instrumentation-fastapi
