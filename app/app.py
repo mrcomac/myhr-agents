@@ -18,8 +18,10 @@ from prompts.JobDescriptionPrompt import JOBDescriptionPrompt
 from prompts.BasePromptModel import BasePromptModel
 from strands import Agent, ModelRetryStrategy
 from helpers.model_definitions import MODEL_ID, calculate_cost_for_model
+from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 
 app = FastAPI(title="CV Evaluation Agent")
+FastAPIInstrumentor().instrument_app(app)
 
 logging.getLogger().setLevel(logging.INFO)
 
